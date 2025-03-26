@@ -1,147 +1,196 @@
 # Troubleshooting Cloudflare D1 Deployment
 
-This guide addresses common issues encountered when deploying the application to Cloudflare Workers with D1 database integration.
+This guide provides solutions to common issues encountered when deploying the application to Cloudflare Workers with D1 database.
 
-## Error Code 10021: Service Worker Format Not Compatible with D1
+## Module Format Requirements
 
-### Problem
+Cloudflare Workers with D1 database bindings require the ES Module format. The following issues are commonly encountered:
 
-During deployment, you might encounter an error like:
+### 1. Worker compilation fails with module format errors
 
-```
-Error: Worker format "service-worker" is not compatible with the D1 Binding "DB". 
-Error: Failed to deploy to Cloudflare Workers
-Error code: 10021
-```
+**Problem**: The worker fails to compile with errors related to module format.
 
-### Solution
+**Solution**:
+- Ensure that your worker exports a default object using ES Module syntax:
+  ```javascript
+  export default {
+    async fetch(request, env, ctx) {
+      // Your worker code
+    }
+  };
+  ```
+- Check that the `compile-worker.sh` script uses the correct TypeScript options:
+  ```
+  npx tsc --module NodeNext --target ES2022 --moduleResolution NodeNext
+  ```
+- Verify that esbuild is configured with the right format:
+  ```
+  npx esbuild dist/server/cloudflare-worker.js --format=esm --platform=neutral
+  ```
 
-This error occurs because Cloudflare D1 requires workers to be in "module format" (ESM) rather than the traditional "service worker format." To fix this:
+### 2. D1 binding not working in development
 
-1. **Check worker format in wrangler.toml**:
-   ```toml
-   # Explicitly set to module format for D1 compatibility
-   type = "javascript"
-   format = "modules"
-   ```
+**Problem**: The D1 database works in production but not locally.
 
-2. **Verify export syntax in your worker file**: The worker JavaScript must use proper ES module exports:
-   ```javascript
-   // Correct format
-   export default {
-     async fetch(request, env, ctx) {
-       // ...
-     }
-   };
-   ```
+**Solution**:
+- For local development, create a `wrangler.toml` file with:
+  ```toml
+  [[d1_databases]]
+  binding = "DB"
+  database_name = "cloud-accountant-db"
+  database_id = "your-database-id"
+  ```
+- Run `wrangler dev` with `--local` flag to use local D1:
+  ```
+  npx wrangler dev --local
+  ```
 
-3. **Run the compilation script**: 
-   ```bash
-   bash scripts/compile-worker.sh
-   ```
-   This script handles the TypeScript-to-JavaScript conversion and ensures proper ESM format.
+## TypeScript Configuration Issues
 
-## Failed Migrations or Database Errors
+### 1. Path aliases not resolving
 
-### Problem
+**Problem**: TypeScript can't resolve path aliases like `@shared/*` during compilation.
 
-Database migrations fail to apply or you get database-related errors when accessing the application.
+**Solution**:
+- Use relative imports in the worker file:
+  ```typescript
+  import { type User } from '../shared/schema';
+  // Instead of: import { type User } from '@shared/schema';
+  ```
+- Or create a temporary tsconfig for worker compilation:
+  ```json
+  {
+    "compilerOptions": {
+      "paths": {
+        "@shared/*": ["./shared/*"]
+      }
+    }
+  }
+  ```
 
-### Solution
+### 2. Interface compatibility issues
 
-1. **Check D1 database existence**:
-   ```bash
-   npx wrangler d1 list
-   ```
+**Problem**: TypeScript errors when working with D1 database interfaces.
 
-2. **Create D1 database if it doesn't exist**:
-   ```bash
-   npx wrangler d1 create MTD_ITSA_DB
-   ```
+**Solution**:
+- Use the proper Cloudflare D1 interface definitions:
+  ```typescript
+  interface D1Result<T = any> {
+    results: T[];
+    success: boolean;
+    error?: string;
+  }
 
-3. **Manually run migrations**:
-   ```bash
-   npx wrangler d1 execute MTD_ITSA_DB --file=migrations/0000_initial_schema.sql
-   npx wrangler d1 execute MTD_ITSA_DB --file=migrations/0001_sample_data.sql
-   ```
+  interface D1Statement {
+    all: <T = any>() => Promise<D1Result<T>>;
+    first: <T = any>() => Promise<T | null>;
+    run: () => Promise<{ count: number }>;
+  }
 
-4. **Verify database tables**:
-   ```bash
-   npx wrangler d1 execute MTD_ITSA_DB --command="SELECT name FROM sqlite_master WHERE type='table';"
-   ```
+  interface D1PreparedStatement {
+    bind: (...params: any[]) => D1Statement;
+  }
 
-## TypeScript Compilation Issues
+  interface D1Database {
+    prepare: (query: string) => D1PreparedStatement;
+    batch: <T = any>(statements: D1PreparedStatement[]) => Promise<D1Result<T>[]>;
+    exec: (query: string) => Promise<{ count: number }>;
+  }
+  ```
 
-### Problem
+## Deployment Issues
 
-TypeScript fails to compile properly for Cloudflare Workers deployment.
+### 1. Worker deploys but returns 500 errors
 
-### Solution
+**Problem**: The worker deploys successfully but returns 500 errors when accessed.
 
-1. **Update TypeScript configuration**: Ensure your `tsconfig.build.json` has the correct settings:
-   ```json
-   {
-     "compilerOptions": {
-       "noEmit": false,
-       "outDir": "./dist",
-       "module": "NodeNext",
-       "moduleResolution": "NodeNext",
-       "allowSyntheticDefaultImports": true,
-       "skipLibCheck": true
-     }
-   }
-   ```
+**Solution**:
+- Check the worker logs in Cloudflare dashboard
+- Add detailed error handling and logging:
+  ```javascript
+  try {
+    // Your code
+  } catch (error) {
+    return new Response(JSON.stringify({
+      success: false,
+      error: error.message,
+      stack: error.stack
+    }), { status: 500 });
+  }
+  ```
+- Verify D1 database is properly created and migrations are run
+- Test the connection with a simple query:
+  ```javascript
+  const result = await env.DB.prepare('SELECT 1 as test').first();
+  ```
 
-2. **Check for TypeScript errors**: Run TypeScript compilation explicitly to see any errors:
-   ```bash
-   npx tsc -p tsconfig.build.json --noEmit
-   ```
+### 2. Worker size exceeds limits
 
-3. **Use the simple test script**: Test compilation with a simplified worker:
-   ```bash
-   bash scripts/test-compile.sh
-   ```
+**Problem**: The compiled worker is too large (>1MB).
 
-## Deployment Timeouts or Network Issues
+**Solution**:
+- Use tree-shaking and minification in esbuild:
+  ```
+  npx esbuild --format=esm --platform=neutral --bundle --minify --tree-shaking=true
+  ```
+- Remove unnecessary dependencies and imports
+- Create a simplified worker for Cloudflare that only contains essential functionality
 
-### Problem
+## Database Migration Issues
 
-The deployment process times out or fails with network-related errors.
+### 1. Migration fails with SQL errors
 
-### Solution
+**Problem**: Database migrations fail with SQL syntax errors.
 
-1. **Verify Cloudflare credentials**: Ensure your Cloudflare API token and account ID are correctly set in your environment variables.
+**Solution**:
+- Validate SQL syntax with an SQL linter
+- Ensure migrations are compatible with SQLite (used by D1)
+- Test migrations locally before deploying:
+  ```
+  npx wrangler d1 execute <DB_NAME> --local --file=migrations/001_initial.sql
+  ```
 
-2. **Deploy in stages**: 
-   - First deploy just the worker without migrations
-   - Then run migrations separately
+### 2. Schema inconsistencies
 
-3. **Use manual direct deployment**:
-   ```bash
-   # Compile the worker
-   bash scripts/compile-worker.sh
-   
-   # Deploy with explicit config
-   npx wrangler deploy --config wrangler-deploy.toml
-   ```
+**Problem**: The database schema doesn't match what the application expects.
 
-## Testing the Deployment
+**Solution**:
+- Version your migrations and ensure they run in order
+- Add a schema version table to track applied migrations
+- Use database introspection to validate schema after migrations:
+  ```sql
+  SELECT name FROM sqlite_master WHERE type='table';
+  PRAGMA table_info(users);
+  ```
 
-To verify your deployment works correctly:
+## Environment Troubleshooting
 
-1. **Check the worker status**:
-   ```bash
-   npx wrangler deployments list
-   ```
+### 1. Missing environment variables
 
-2. **Test database connection** by visiting `/test-db` endpoint on your deployed worker.
+**Problem**: Deployment fails due to missing environment variables.
 
-3. **Check application logs** in the Cloudflare dashboard to see if there are any runtime errors.
+**Solution**:
+- Ensure that `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` are set
+- Verify that `D1_DATABASE_ID` is set or automatically retrieved
+- Add proper validation in the deployment script:
+  ```javascript
+  function checkEnvVars() {
+    const requiredVars = ['CLOUDFLARE_API_TOKEN', 'CLOUDFLARE_ACCOUNT_ID'];
+    const missing = requiredVars.filter(v => !process.env[v]);
+    if (missing.length > 0) {
+      console.error(`Missing variables: ${missing.join(', ')}`);
+      process.exit(1);
+    }
+  }
+  ```
 
-## Need More Help?
+### 2. Permissions issues
 
-If you continue to experience issues:
+**Problem**: API token doesn't have sufficient permissions.
 
-1. Review the [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers/)
-2. Check the [Cloudflare D1 Documentation](https://developers.cloudflare.com/d1/)
-3. Use the direct deployment method via Wrangler instead of Terraform if persistent issues occur
+**Solution**:
+- Ensure your Cloudflare API token has the following permissions:
+  - Account.Workers Scripts:Edit
+  - Account.Workers Routes:Edit
+  - Account.D1:Edit
+- Create a new token with the correct permissions in the Cloudflare dashboard

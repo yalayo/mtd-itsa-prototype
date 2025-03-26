@@ -1,24 +1,36 @@
 // Simple module-format worker for Cloudflare with D1 database access
 // This is specifically designed for production deployment
 
+// D1 interface based on Cloudflare documentation
+interface D1Result<T = any> {
+  results: T[];
+  success: boolean;
+  error?: string;
+  meta?: any;
+}
+
+interface D1ExecResult {
+  count: number;
+  duration: number;
+}
+
 interface D1Statement {
-  all: () => Promise<{ results: any[] }>;
-  first: () => Promise<any>;
-  run: () => Promise<any>;
+  all: <T = any>() => Promise<D1Result<T>>;
+  first: <T = any>() => Promise<T | null>;
+  run: () => Promise<D1ExecResult>;
 }
 
 interface D1PreparedStatement {
   bind: (...params: any[]) => D1Statement;
-  first: () => Promise<any>;
-  all: () => Promise<{ results: any[] }>;
-  run: () => Promise<any>;
+  first: <T = any>() => Promise<T | null>;
+  all: <T = any>() => Promise<D1Result<T>>;
 }
 
 interface D1Database {
   prepare: (query: string) => D1PreparedStatement;
-  batch: (statements: any[]) => Promise<any>;
-  exec: (query: string) => Promise<any>;
-  dump: () => Promise<any>;
+  batch: <T = any>(statements: D1PreparedStatement[]) => Promise<D1Result<T>[]>;
+  exec: (query: string) => Promise<D1ExecResult>;
+  dump: () => Promise<ArrayBuffer>;
 }
 
 interface Env {
