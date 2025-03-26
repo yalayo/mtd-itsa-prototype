@@ -72,7 +72,7 @@ export class MemStorage implements IStorage {
       code: "EUR",
       name: "Euro",
       symbol: "€",
-      rate: 1.18,
+      rate: "1.18",
       lastUpdated: new Date()
     });
     
@@ -80,7 +80,7 @@ export class MemStorage implements IStorage {
       code: "USD",
       name: "US Dollar",
       symbol: "$",
-      rate: 1.31,
+      rate: "1.31",
       lastUpdated: new Date()
     });
     
@@ -88,7 +88,7 @@ export class MemStorage implements IStorage {
       code: "CAD",
       name: "Canadian Dollar",
       symbol: "$",
-      rate: 1.78,
+      rate: "1.78",
       lastUpdated: new Date()
     });
     
@@ -96,7 +96,7 @@ export class MemStorage implements IStorage {
       code: "AUD",
       name: "Australian Dollar",
       symbol: "$",
-      rate: 1.92,
+      rate: "1.92",
       lastUpdated: new Date()
     });
     
@@ -245,7 +245,7 @@ export class MemStorage implements IStorage {
     
     const updated: Currency = {
       ...currency,
-      rate,
+      rate: rate.toString(),
       lastUpdated: new Date()
     };
     
@@ -300,13 +300,13 @@ export class MemStorage implements IStorage {
     if (filters) {
       if (filters.startDate) {
         transactions = transactions.filter(t => 
-          t.date >= filters.startDate!
+          new Date(t.date) >= filters.startDate!
         );
       }
       
       if (filters.endDate) {
         transactions = transactions.filter(t => 
-          t.date <= filters.endDate!
+          new Date(t.date) <= filters.endDate!
         );
       }
       

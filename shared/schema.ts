@@ -23,7 +23,7 @@ export const currencies = pgTable("currencies", {
   code: text("code").primaryKey(),
   name: text("name").notNull(),
   symbol: text("symbol").notNull(),
-  rate: decimal("rate", { precision: 10, scale: 6 }).notNull(), // Rate relative to GBP
+  rate: text("rate").notNull(), // Rate relative to GBP (stored as text)
   lastUpdated: timestamp("last_updated").notNull().defaultNow(),
 });
 

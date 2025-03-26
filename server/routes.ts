@@ -2,7 +2,7 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./index.js";
 // Import zod
-import zod from "zod";
+import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { 
   insertUserSchema, 
