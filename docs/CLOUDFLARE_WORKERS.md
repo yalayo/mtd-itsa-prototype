@@ -42,10 +42,12 @@ When using these features, your worker must use the Module format to ensure comp
 Our project uses the following strategies to ensure proper Module format:
 
 1. **Terraform Configuration**: 
+   For the Cloudflare provider v5.1.0, module format is determined by the content of the script:
    ```terraform
    resource "cloudflare_workers_script" "worker" {
      # ... other configuration ...
-     module = true  # Explicitly set to module format
+     # Module format is determined by the content of the worker script
+     # The script must use ESM export syntax
    }
    ```
 
@@ -81,9 +83,11 @@ D1 bindings require module-format workers. https://developers.cloudflare.com/wor
 
 Check that:
 1. The worker script is using export syntax correctly
-2. The `module = true` is set in Terraform
+2. The worker script content follows the module format (ESM exports)
 3. The `format = "modules"` is set in wrangler.toml
 4. The esbuild command uses `--format=esm`
+
+If you use Terraform provider version 5.1.0 or higher, note that the `module = true` property is not supported. Instead, the module format is determined by the content of the worker script itself.
 
 ## Resources
 

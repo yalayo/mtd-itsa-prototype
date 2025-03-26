@@ -29,11 +29,18 @@ jobs:
         run: |
           npm run build
           # Create worker script for Cloudflare Workers - ensure module format for D1 compatibility
-          npx esbuild server/worker.ts --platform=neutral --packages=external --bundle --format=esm --outfile=terraform/worker.js
-          # Update file to explicitly use export syntax required for module workers
-          echo "export { default } from './worker-bundle.js';" > terraform/worker-module.js
-          mv terraform/worker.js terraform/worker-bundle.js
-          mv terraform/worker-module.js terraform/worker.js
+          # For Cloudflare Workers, module format is determined by the export syntax
+          # The script needs to be in ES modules format
+          npx esbuild server/worker.ts --platform=neutral --packages=external --bundle --format=esm --outfile=terraform/worker-bundle.js
+          
+          # Create a wrapper module that exports from the bundle
+          # This ensures proper ESM format compatible with D1 bindings
+          cat > terraform/worker.js << 'EOF'
+          // Cloudflare Worker module format wrapper
+          // This is required for D1 database bindings
+          import worker from './worker-bundle.js';
+          export default worker;
+          EOF
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2

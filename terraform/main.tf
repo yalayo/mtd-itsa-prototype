@@ -29,8 +29,8 @@ resource "cloudflare_workers_script" "worker" {
   compatibility_date = "2024-01-01"
   content     = file("worker.js")
   
-  # Explicitly set to module format for D1 compatibility
-  module = true
+  # Module format is determined by the content of the worker script
+  # The script must use ESM export syntax
   
   bindings = [{
     name = "DB"
