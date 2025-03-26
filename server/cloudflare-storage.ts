@@ -11,6 +11,11 @@ import {
   users, currencies, categories, transactions, taxReports
 } from '../shared/schema';
 
+// Factory function to create a CloudflareStorage instance
+export function createCloudflareStorage(d1: D1Database): IStorage {
+  return new CloudflareStorage(d1);
+}
+
 export class CloudflareStorage implements IStorage {
   private db: ReturnType<typeof drizzle>;
 

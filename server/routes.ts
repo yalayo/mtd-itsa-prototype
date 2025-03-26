@@ -84,12 +84,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.post("/api/currencies/update-rates", async (_req, res) => {
     try {
-      // In a real app, you would call an external API for exchange rates
-      // For demo purposes, we'll just update with mock data
-      await storage.updateCurrency("EUR", 1.18);
-      await storage.updateCurrency("USD", 1.31);
-      await storage.updateCurrency("CAD", 1.78);
-      await storage.updateCurrency("AUD", 1.92);
+      // In a real app, fetch real exchange rates from an external API
+      try {
+        // Use an API like exchangerate.host to get real-time currency data
+        const response = await axios.get('https://api.exchangerate.host/latest?base=GBP');
+        const rates = response.data.rates;
+        
+        if (rates.EUR) await storage.updateCurrency("EUR", rates.EUR);
+        if (rates.USD) await storage.updateCurrency("USD", rates.USD);
+        if (rates.CAD) await storage.updateCurrency("CAD", rates.CAD);
+        if (rates.AUD) await storage.updateCurrency("AUD", rates.AUD);
+      } catch (apiError) {
+        console.error('Failed to fetch exchange rates:', apiError);
+        // Fallback to last known rates in case of API failure
+        await storage.updateCurrency("EUR", 1.18);
+        await storage.updateCurrency("USD", 1.31);
+        await storage.updateCurrency("CAD", 1.78);
+        await storage.updateCurrency("AUD", 1.92);
+      }
       
       const currencies = await storage.getCurrencies();
       res.json(currencies);

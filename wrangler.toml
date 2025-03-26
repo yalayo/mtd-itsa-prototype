@@ -7,3 +7,8 @@ compatibility_date = "2023-01-01"
 binding = "DB"
 database_name = "cloudaccount"
 database_id = ""  # Will be populated after running `wrangler d1 create cloudaccount`
+migrations_dir = "migrations"
+
+# Static assets binding
+[[site]]
+bucket = "./dist"
