@@ -2,7 +2,7 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./index.js";
 // Import zod and its types
-import * as zod from "zod";
+import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { 
   insertUserSchema, 
@@ -15,8 +15,8 @@ import axios from "axios";
 export async function registerRoutes(app: Express): Promise<Server> {
   // API error handler
   const handleApiError = (res: Response, error: unknown) => {
-    if (error instanceof Error && error.name === 'ZodError') {
-      const validationError = fromZodError(error);
+    if (error instanceof ZodError) {
+      const validationError = fromZodError(error as ZodError);
       return res.status(400).json({ message: validationError.message });
     }
     
