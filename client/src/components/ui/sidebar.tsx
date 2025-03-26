@@ -109,12 +109,12 @@ export function Sidebar() {
               <div className="px-4 py-4 border-t border-primary/20">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <div className="h-9 w-9 rounded-full bg-primary/20 flex items-center justify-center text-primary-foreground">
-                      {user.fullName.split(' ').map(n => n[0]).join('')}
+                    <div className="h-9 w-9 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 flex items-center justify-center text-white shadow-md">
+                      <span className="font-bold">{user.fullName.split(' ').map(n => n[0]).join('')}</span>
                     </div>
                   </div>
                   <div className="ml-3">
-                    <p className="text-sm font-medium text-white font-semibold bg-gradient-to-r from-yellow-200 to-yellow-500 bg-clip-text text-transparent">{user.fullName}</p>
+                    <p className="text-base font-bold text-white bg-gradient-to-r from-yellow-300 to-amber-500 bg-clip-text text-transparent">{user.fullName}</p>
                     <p className="text-xs text-primary-foreground/70">
                       {user.businessType === 'sole_trader' ? 'Sole Trader' : 'Landlord'}
                     </p>
@@ -147,12 +147,12 @@ export function Sidebar() {
             <div className="px-4 py-4 border-t border-primary/20">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <div className="h-9 w-9 rounded-full bg-primary/20 flex items-center justify-center text-primary-foreground">
-                    {user.fullName.split(' ').map(n => n[0]).join('')}
+                  <div className="h-9 w-9 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 flex items-center justify-center text-white shadow-md">
+                    <span className="font-bold">{user.fullName.split(' ').map(n => n[0]).join('')}</span>
                   </div>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm font-medium text-white font-semibold bg-gradient-to-r from-yellow-200 to-yellow-500 bg-clip-text text-transparent">{user.fullName}</p>
+                  <p className="text-base font-bold text-white bg-gradient-to-r from-yellow-300 to-amber-500 bg-clip-text text-transparent">{user.fullName}</p>
                   <p className="text-xs text-primary-foreground/70">
                     {user.businessType === 'sole_trader' ? 'Sole Trader' : 'Landlord'}
                   </p>

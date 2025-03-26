@@ -99,8 +99,8 @@ export default function Dashboard() {
               </div>
               <div className="border-l border-gray-200 h-6 mx-4 hidden md:block"></div>
               <div className="ml-3 relative md:hidden">
-                <div className="h-8 w-8 rounded-full bg-primary-500 flex items-center justify-center">
-                  <span className="text-white font-medium text-sm">
+                <div className="h-8 w-8 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 flex items-center justify-center text-white shadow-md">
+                  <span className="text-white font-bold text-sm">
                     {user.fullName.split(' ').map(n => n[0]).join('')}
                   </span>
                 </div>
