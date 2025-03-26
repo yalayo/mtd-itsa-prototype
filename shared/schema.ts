@@ -1,6 +1,7 @@
 import { pgTable, text, serial, integer, decimal, varchar, date, timestamp, boolean } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod";
+import { createInsertSchema } from "drizzle-zod"; 
+// We need to use a direct import for Zod's type inference
+import { infer as zodinfer } from "zod";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -93,12 +94,12 @@ export const insertTaxReportSchema = createInsertSchema(taxReports).pick({
 });
 
 export type User = typeof users.$inferSelect;
-export type InsertUser = z.infer<typeof insertUserSchema>;
+export type InsertUser = zodinfer<typeof insertUserSchema>;
 export type Currency = typeof currencies.$inferSelect;
-export type InsertCurrency = z.infer<typeof insertCurrencySchema>;
+export type InsertCurrency = zodinfer<typeof insertCurrencySchema>;
 export type Category = typeof categories.$inferSelect;
-export type InsertCategory = z.infer<typeof insertCategorySchema>;
+export type InsertCategory = zodinfer<typeof insertCategorySchema>;
 export type Transaction = typeof transactions.$inferSelect;
-export type InsertTransaction = z.infer<typeof insertTransactionSchema>;
+export type InsertTransaction = zodinfer<typeof insertTransactionSchema>;
 export type TaxReport = typeof taxReports.$inferSelect;
-export type InsertTaxReport = z.infer<typeof insertTaxReportSchema>;
+export type InsertTaxReport = zodinfer<typeof insertTaxReportSchema>;
