@@ -27,10 +27,10 @@ resource "cloudflare_workers_script" "worker" {
   account_id  = var.cloudflare_account_id
   script_name = "mtd-itsa-prototype"
   compatibility_date = "2024-01-01"
-  content     = file("worker.js")
+  content     = file("${path.module}/worker.js")  # Use the proper module format worker
   
-  # Module format is determined by the content of the worker script
-  # The script must use ESM export syntax
+  # Module format is determined by the content of the worker script using ESM export syntax
+  # We're explicitly setting it as a JavaScript module
   
   bindings = [{
     name = "DB"
