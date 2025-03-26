@@ -30,6 +30,11 @@ jobs:
           npm run build
           # Create worker script for Cloudflare Workers
           npx esbuild server/worker.ts --platform=neutral --packages=external --bundle --format=esm --outfile=terraform/worker.js
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
       
       - name: Deploy with Terraform
         env:
