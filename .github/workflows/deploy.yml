@@ -31,36 +31,15 @@ jobs:
           # Create worker script for Cloudflare Workers
           npx esbuild server/worker.ts --platform=neutral --packages=external --bundle --format=esm --outfile=terraform/worker.js
       
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: '1.5.0'
-      
-      - name: Terraform Init
+      - name: Deploy with Terraform
+        env:
+          TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          TF_VAR_cloudflare_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          TF_VAR_neon_database_url: ${{ secrets.DATABASE_URL }}
         run: |
           cd terraform
           terraform init
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      
-      - name: Terraform Plan
-        run: |
-          cd terraform
-          terraform plan
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          TF_VAR_cloudflare_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          TF_VAR_domain_zone_id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-      
-      - name: Terraform Apply
-        if: github.ref == 'refs/heads/main'  # Only apply on main branch
-        run: |
-          cd terraform
           terraform apply -auto-approve
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          TF_VAR_cloudflare_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          TF_VAR_domain_zone_id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
           
       - name: Run Database Migrations
         if: github.ref == 'refs/heads/main'  # Only run migrations on main branch
