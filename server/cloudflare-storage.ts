@@ -49,7 +49,7 @@ export class CloudflareStorage implements IStorage {
     return result;
   }
 
-  async updateCurrency(code: string, rate: number): Promise<Currency> {
+  async updateCurrency(code: string, rate: string | number): Promise<Currency> {
     const updated = await this.db
       .update(currencies)
       .set({ rate: rate.toString() }) // Convert rate to string as expected by the schema
