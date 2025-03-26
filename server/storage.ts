@@ -15,7 +15,7 @@ export interface IStorage {
   // Currency management
   getCurrencies(): Promise<Currency[]>;
   getCurrency(code: string): Promise<Currency | undefined>;
-  updateCurrency(code: string, rate: number): Promise<Currency>;
+  updateCurrency(code: string, rate: string | number): Promise<Currency>;
   createCurrency(currency: InsertCurrency): Promise<Currency>;
   
   // Category management
@@ -237,7 +237,7 @@ export class MemStorage implements IStorage {
     return this.currencies.get(code);
   }
   
-  async updateCurrency(code: string, rate: number): Promise<Currency> {
+  async updateCurrency(code: string, rate: string | number): Promise<Currency> {
     const currency = this.currencies.get(code);
     if (!currency) {
       throw new Error(`Currency ${code} not found`);
