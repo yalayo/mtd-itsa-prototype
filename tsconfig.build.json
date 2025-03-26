@@ -5,9 +5,12 @@
     "outDir": "./dist",
     "declaration": true,
     "sourceMap": true,
+    "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "allowSyntheticDefaultImports": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": false,
+    "isolatedModules": true
   },
   "include": ["server/**/*", "shared/**/*"]
 }

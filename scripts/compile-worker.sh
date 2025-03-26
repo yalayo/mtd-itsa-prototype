@@ -10,11 +10,11 @@ npm install -D @babel/parser @babel/types undici-types csstype pg-types pg-proto
 echo "Creating output directory..."
 mkdir -p dist
 
-echo "Compiling TypeScript to JavaScript..."
-npx tsc -p tsconfig.build.json
+echo "Compiling simplified Cloudflare worker..."
+npx tsc --module NodeNext --target ES2022 --moduleResolution NodeNext --esModuleInterop --skipLibCheck server/cloudflare-worker.ts --outDir dist/server
 
 echo "Building module-format worker with esbuild..."
-npx esbuild dist/server/worker.js --format=esm --platform=neutral --bundle --outfile=worker-module.js
+npx esbuild dist/server/cloudflare-worker.js --format=esm --platform=neutral --bundle --outfile=worker-module.js
 
 # Verify the output has ESM format
 if grep -q "export" worker-module.js; then
