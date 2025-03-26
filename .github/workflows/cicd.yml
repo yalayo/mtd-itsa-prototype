@@ -27,6 +27,7 @@ jobs:
           npm run build
           # Copy bundled files to terraform directory for deployment
           cp -r dist/* terraform/
+          ls -la terraform/
           
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
@@ -36,6 +37,7 @@ jobs:
       - name: Deploy with Terraform
         env:
           TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          TF_VAR_cloudflare_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           TF_VAR_neon_database_url: ${{ secrets.DATABASE_URL }}
         run: |
           cd terraform
