@@ -1,14 +1,14 @@
-name = "cloudaccount-api"
-main = "server/index.ts"
-compatibility_date = "2023-01-01"
+name = "cloudaccount-app"
+main = "terraform/worker.js"
+compatibility_date = "2023-09-01"
 
-# Database binding for Cloudflare D1
+[vars]
+NODE_ENV = "production"
+
 [[d1_databases]]
 binding = "DB"
-database_name = "cloudaccount"
-database_id = ""  # Will be populated after running `wrangler d1 create cloudaccount`
-migrations_dir = "migrations"
+database_name = "CLOUDACCOUNT_DB"
+database_id = ""  # Will be filled by the CI/CD pipeline
 
-# Static assets binding
-[[site]]
-bucket = "./dist"
+[triggers]
+crons = ["0 */6 * * *"]  # Run currency rate updates every 6 hours

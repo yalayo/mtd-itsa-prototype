@@ -1,16 +1,17 @@
-variable "cloudflare_api_token" {
-  description = "Cloudflare API token with Workers and D1 permissions"
+variable "cloudflare_account_id" {
+  description = "Cloudflare account ID"
   type        = string
   sensitive   = true
 }
 
-variable "cloudflare_zone_id" {
-  description = "Cloudflare Zone ID for the domain"
+variable "domain_name" {
+  description = "Domain name to use for the application"
   type        = string
+  default     = "example.com"  # Change this to your actual domain
 }
 
-variable "neon_database_url" {
-  description = "Neon PostgreSQL connection string"
+variable "domain_zone_id" {
+  description = "Cloudflare Zone ID for the domain"
   type        = string
   sensitive   = true
 }
