@@ -1,3 +1,0 @@
-cloudflare_api_token = "your-cloudflare-api-token"
-cloudflare_zone_id = "your-cloudflare-zone-id"
-neon_database_url = "postgresql://user:password@neon.tech/cloudaccount"
