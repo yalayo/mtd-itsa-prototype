@@ -40,19 +40,23 @@ export function Sidebar() {
   const renderLinks = () => (
     <nav className="mt-5 px-2 flex-1 space-y-1">
       {links.map((link) => (
-        <Link key={link.href} href={link.href}>
-          <a
-            className={`${
-              location === link.href
-                ? "bg-primary-600 text-white"
-                : "text-white hover:bg-primary-600"
-            } group flex items-center px-3 py-3 text-sm font-medium rounded-md`}
-            onClick={closeMobileMenu}
-          >
-            {link.icon}
-            {link.label}
-          </a>
-        </Link>
+        <div key={link.href} className="w-full">
+          <Link href={link.href}>
+            {(isActive) => (
+              <button
+                className={`${
+                  isActive
+                    ? "bg-primary/80 text-primary-foreground"
+                    : "text-white hover:bg-primary/50"
+                } group flex items-center px-3 py-3 text-sm font-medium rounded-md w-full text-left`}
+                onClick={closeMobileMenu}
+              >
+                {link.icon}
+                {link.label}
+              </button>
+            )}
+          </Link>
+        </div>
       ))}
     </nav>
   );
@@ -76,7 +80,7 @@ export function Sidebar() {
         <div className="fixed inset-0 flex z-40 md:hidden">
           <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={closeMobileMenu} />
           
-          <div className="relative flex-1 flex flex-col max-w-xs w-full bg-primary-500 text-white">
+          <div className="relative flex-1 flex flex-col max-w-xs w-full bg-primary text-primary-foreground">
             <div className="absolute top-0 right-0 -mr-12 pt-2">
               <Button
                 variant="ghost"
@@ -100,21 +104,21 @@ export function Sidebar() {
             </div>
             
             {user && (
-              <div className="px-4 py-4 border-t border-primary-600">
+              <div className="px-4 py-4 border-t border-primary/20">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <div className="h-9 w-9 rounded-full bg-primary-400 flex items-center justify-center text-white">
+                    <div className="h-9 w-9 rounded-full bg-primary/20 flex items-center justify-center text-primary-foreground">
                       {user.fullName.split(' ').map(n => n[0]).join('')}
                     </div>
                   </div>
                   <div className="ml-3">
-                    <p className="text-sm font-medium text-white">{user.fullName}</p>
-                    <p className="text-xs text-primary-200">
+                    <p className="text-sm font-medium text-primary-foreground">{user.fullName}</p>
+                    <p className="text-xs text-primary-foreground/70">
                       {user.businessType === 'sole_trader' ? 'Sole Trader' : 'Landlord'}
                     </p>
                   </div>
                   <div className="ml-auto">
-                    <button className="text-primary-200 hover:text-white">
+                    <button className="text-primary-foreground/70 hover:text-primary-foreground">
                       <Settings className="h-5 w-5" />
                     </button>
                   </div>
@@ -127,7 +131,7 @@ export function Sidebar() {
       
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex md:flex-shrink-0">
-        <div className="flex flex-col w-64 bg-primary-500 text-white">
+        <div className="flex flex-col w-64 bg-primary text-primary-foreground">
           <div className="px-4 py-5 flex items-center">
             <div className="flex items-center">
               <LayoutDashboard className="h-6 w-6 mr-2" />
@@ -138,21 +142,21 @@ export function Sidebar() {
           {renderLinks()}
           
           {user && (
-            <div className="px-4 py-4 border-t border-primary-600">
+            <div className="px-4 py-4 border-t border-primary/20">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <div className="h-9 w-9 rounded-full bg-primary-400 flex items-center justify-center text-white">
+                  <div className="h-9 w-9 rounded-full bg-primary/20 flex items-center justify-center text-primary-foreground">
                     {user.fullName.split(' ').map(n => n[0]).join('')}
                   </div>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm font-medium text-white">{user.fullName}</p>
-                  <p className="text-xs text-primary-200">
+                  <p className="text-sm font-medium text-primary-foreground">{user.fullName}</p>
+                  <p className="text-xs text-primary-foreground/70">
                     {user.businessType === 'sole_trader' ? 'Sole Trader' : 'Landlord'}
                   </p>
                 </div>
                 <div className="ml-auto">
-                  <button className="text-primary-200 hover:text-white">
+                  <button className="text-primary-foreground/70 hover:text-primary-foreground">
                     <Settings className="h-5 w-5" />
                   </button>
                 </div>
