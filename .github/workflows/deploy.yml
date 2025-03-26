@@ -36,79 +36,97 @@ jobs:
       - name: Build frontend 
         run: npm run build
       
-      - name: Create module-format worker
+      - name: Compile TypeScript worker
         run: |
-          # Create a standalone module-format worker file at the root
-          # This ensures proper ESM format compatible with D1 bindings
-          cat > worker-module.js << 'EOF'
-          // Standalone module-format worker for Cloudflare
-          // This uses proper ES Module syntax required for D1 bindings
-          export default {
-            async fetch(request, env, ctx) {
-              try {
-                // Basic routing
-                const url = new URL(request.url);
-                
-                // Health check endpoint
-                if (url.pathname === '/health') {
-                  return new Response('OK', { 
+          # Install dependencies needed for compilation
+          npm install -D @babel/parser @babel/types undici-types csstype pg-types pg-protocol
+          
+          # Create a dist directory for the worker
+          mkdir -p dist
+          
+          # Compile TypeScript to JavaScript with the build config
+          echo "Compiling server code to JavaScript..."
+          npx tsc -p tsconfig.build.json
+          
+          # Use esbuild for the worker to ensure proper ESM format
+          echo "Building module-format worker with esbuild..."
+          npx esbuild dist/server/worker.js --format=esm --platform=neutral --bundle --outfile=worker-module.js
+          
+          # Verify the output has ESM format
+          if ! grep -q "export default" worker-module.js; then
+            echo "Error: Generated worker doesn't have ESM format, creating a fallback module..."
+            # Create fallback test worker if compilation fails
+            cat > worker-module.js << 'EOF'
+            // Fallback module-format worker for Cloudflare
+            // This uses proper ES Module syntax required for D1 bindings
+            export default {
+              async fetch(request, env, ctx) {
+                try {
+                  // Basic routing
+                  const url = new URL(request.url);
+                  
+                  // Health check endpoint
+                  if (url.pathname === '/health') {
+                    return new Response('OK', { 
+                      status: 200,
+                      headers: { 'Content-Type': 'text/plain' }
+                    });
+                  }
+                  
+                  // Test D1 database connection
+                  if (url.pathname === '/test-db') {
+                    try {
+                      // Simple test query to verify D1 connection
+                      const result = await env.DB.prepare('SELECT 1 as test').first();
+                      return new Response(JSON.stringify({
+                        success: true,
+                        dbTest: result?.test || null,
+                        message: 'D1 connection successful'
+                      }), {
+                        status: 200,
+                        headers: { 'Content-Type': 'application/json' }
+                      });
+                    } catch (dbError) {
+                      return new Response(JSON.stringify({
+                        success: false,
+                        error: dbError.message,
+                        message: 'D1 connection failed'
+                      }), {
+                        status: 500,
+                        headers: { 'Content-Type': 'application/json' }
+                      });
+                    }
+                  }
+                  
+                  return new Response(JSON.stringify({
+                    success: true,
+                    message: 'Module format worker is running correctly',
+                    path: url.pathname,
+                    time: new Date().toISOString()
+                  }), {
                     status: 200,
-                    headers: { 'Content-Type': 'text/plain' }
+                    headers: { 
+                      'Content-Type': 'application/json',
+                      'Access-Control-Allow-Origin': '*',
+                      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                      'Access-Control-Allow-Headers': 'Content-Type'
+                    }
+                  });
+                } catch (error) {
+                  return new Response(JSON.stringify({
+                    success: false,
+                    error: error.message,
+                  }), {
+                    status: 500,
+                    headers: { 'Content-Type': 'application/json' }
                   });
                 }
-                
-                // Test D1 database connection
-                if (url.pathname === '/test-db') {
-                  try {
-                    // Simple test query to verify D1 connection
-                    const result = await env.DB.prepare('SELECT 1 as test').first();
-                    return new Response(JSON.stringify({
-                      success: true,
-                      dbTest: result?.test || null,
-                      message: 'D1 connection successful'
-                    }), {
-                      status: 200,
-                      headers: { 'Content-Type': 'application/json' }
-                    });
-                  } catch (dbError) {
-                    return new Response(JSON.stringify({
-                      success: false,
-                      error: dbError.message,
-                      message: 'D1 connection failed'
-                    }), {
-                      status: 500,
-                      headers: { 'Content-Type': 'application/json' }
-                    });
-                  }
-                }
-                
-                // Default response
-                return new Response(JSON.stringify({
-                  success: true,
-                  message: 'Module format worker is running correctly',
-                  path: url.pathname,
-                  time: new Date().toISOString()
-                }), {
-                  status: 200,
-                  headers: { 
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-                    'Access-Control-Allow-Headers': 'Content-Type'
-                  }
-                });
-              } catch (error) {
-                return new Response(JSON.stringify({
-                  success: false,
-                  error: error.message,
-                }), {
-                  status: 500,
-                  headers: { 'Content-Type': 'application/json' }
-                });
               }
-            }
-          };
-          EOF
+            };
+            EOF
+          fi
+          
+          echo "Worker file created successfully"
 
       - name: Setup Terraform
         if: github.event.inputs.deploy_method == 'terraform'
