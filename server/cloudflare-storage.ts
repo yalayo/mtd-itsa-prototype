@@ -1,7 +1,7 @@
 import { D1Database } from '@cloudflare/workers-types';
 import { drizzle } from 'drizzle-orm/d1';
 import { eq, and, gte, lte } from 'drizzle-orm';
-import { IStorage } from './storage.js';
+import { IStorage } from './storage';
 import {
   User, InsertUser,
   Currency, InsertCurrency,
@@ -9,7 +9,7 @@ import {
   Transaction, InsertTransaction,
   TaxReport, InsertTaxReport,
   users, currencies, categories, transactions, taxReports
-} from '../shared/schema.js';
+} from '../shared/schema';
 
 // Factory function to create a CloudflareStorage instance
 export function createCloudflareStorage(d1: D1Database): IStorage {
@@ -49,10 +49,10 @@ export class CloudflareStorage implements IStorage {
     return result;
   }
 
-  async updateCurrency(code: string, rate: string | number): Promise<Currency> {
+  async updateCurrency(code: string, rate: number): Promise<Currency> {
     const updated = await this.db
       .update(currencies)
-      .set({ rate: rate.toString() }) // Convert rate to string as expected by the schema
+      .set({ rate })
       .where(eq(currencies.code, code))
       .returning()
       .get();
@@ -86,32 +86,24 @@ export class CloudflareStorage implements IStorage {
     type?: string,
     currency?: string
   }): Promise<Transaction[]> {
-    // For Cloudflare D1, we need to construct the conditions ahead of time
-    const conditions = [eq(transactions.userId, userId)];
-    
+    let query = this.db.select().from(transactions).where(eq(transactions.userId, userId));
+
     if (filters) {
       if (filters.startDate) {
-        conditions.push(gte(transactions.date, filters.startDate.toISOString()));
+        query = query.where(gte(transactions.date, filters.startDate.toISOString()));
       }
       if (filters.endDate) {
-        conditions.push(lte(transactions.date, filters.endDate.toISOString()));
+        query = query.where(lte(transactions.date, filters.endDate.toISOString()));
       }
       if (filters.type) {
-        conditions.push(eq(transactions.type, filters.type));
+        query = query.where(eq(transactions.type, filters.type));
       }
       if (filters.currency) {
-        conditions.push(eq(transactions.currency, filters.currency));
+        query = query.where(eq(transactions.currency, filters.currency));
       }
     }
-    
-    // Use and() to combine multiple conditions
-    const result = await this.db
-      .select()
-      .from(transactions)
-      .where(and(...conditions))
-      .all();
-      
-    return result;
+
+    return query.all();
   }
 
   async getTransaction(id: number): Promise<Transaction | undefined> {

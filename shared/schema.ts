@@ -1,6 +1,6 @@
 import { pgTable, text, serial, integer, decimal, varchar, date, timestamp, boolean } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod"; 
-// Importing zod
+import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -23,7 +23,7 @@ export const currencies = pgTable("currencies", {
   code: text("code").primaryKey(),
   name: text("name").notNull(),
   symbol: text("symbol").notNull(),
-  rate: text("rate").notNull(), // Rate relative to GBP (stored as text)
+  rate: decimal("rate", { precision: 10, scale: 6 }).notNull(), // Rate relative to GBP
   lastUpdated: timestamp("last_updated").notNull().defaultNow(),
 });
 
@@ -93,12 +93,12 @@ export const insertTaxReportSchema = createInsertSchema(taxReports).pick({
 });
 
 export type User = typeof users.$inferSelect;
-export type InsertUser = any; // typeof insertUserSchema with id omitted
+export type InsertUser = z.infer<typeof insertUserSchema>;
 export type Currency = typeof currencies.$inferSelect;
-export type InsertCurrency = any; // typeof insertCurrencySchema
+export type InsertCurrency = z.infer<typeof insertCurrencySchema>;
 export type Category = typeof categories.$inferSelect;
-export type InsertCategory = any; // typeof insertCategorySchema with id omitted
+export type InsertCategory = z.infer<typeof insertCategorySchema>;
 export type Transaction = typeof transactions.$inferSelect;
-export type InsertTransaction = any; // typeof insertTransactionSchema with id omitted
+export type InsertTransaction = z.infer<typeof insertTransactionSchema>;
 export type TaxReport = typeof taxReports.$inferSelect;
-export type InsertTaxReport = any; // typeof insertTaxReportSchema with id, submissionDate, hmrcReference omitted
+export type InsertTaxReport = z.infer<typeof insertTaxReportSchema>;

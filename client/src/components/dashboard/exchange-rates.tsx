@@ -95,7 +95,7 @@ export function ExchangeRates() {
               <div className="flex items-center">
                 <span className="text-sm font-medium text-gray-900">{currency.code} ({currency.symbol})</span>
               </div>
-              <div className="text-sm font-mono">{parseFloat(currency.rate).toFixed(2)}</div>
+              <div className="text-sm font-mono">{currency.rate.toFixed(2)}</div>
             </div>
           ))}
         </div>

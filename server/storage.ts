@@ -4,7 +4,7 @@ import {
   categories, Category, InsertCategory, 
   transactions, Transaction, InsertTransaction,
   taxReports, TaxReport, InsertTaxReport
-} from "../shared/schema.js";
+} from "@shared/schema";
 
 export interface IStorage {
   // User management
@@ -15,7 +15,7 @@ export interface IStorage {
   // Currency management
   getCurrencies(): Promise<Currency[]>;
   getCurrency(code: string): Promise<Currency | undefined>;
-  updateCurrency(code: string, rate: string | number): Promise<Currency>;
+  updateCurrency(code: string, rate: number): Promise<Currency>;
   createCurrency(currency: InsertCurrency): Promise<Currency>;
   
   // Category management
@@ -64,7 +64,7 @@ export class MemStorage implements IStorage {
       code: "GBP",
       name: "British Pound",
       symbol: "£",
-      rate: "1.0",
+      rate: 1.0,
       lastUpdated: new Date()
     });
     
@@ -72,7 +72,7 @@ export class MemStorage implements IStorage {
       code: "EUR",
       name: "Euro",
       symbol: "€",
-      rate: "1.18",
+      rate: 1.18,
       lastUpdated: new Date()
     });
     
@@ -80,7 +80,7 @@ export class MemStorage implements IStorage {
       code: "USD",
       name: "US Dollar",
       symbol: "$",
-      rate: "1.31",
+      rate: 1.31,
       lastUpdated: new Date()
     });
     
@@ -88,7 +88,7 @@ export class MemStorage implements IStorage {
       code: "CAD",
       name: "Canadian Dollar",
       symbol: "$",
-      rate: "1.78",
+      rate: 1.78,
       lastUpdated: new Date()
     });
     
@@ -96,7 +96,7 @@ export class MemStorage implements IStorage {
       code: "AUD",
       name: "Australian Dollar",
       symbol: "$",
-      rate: "1.92",
+      rate: 1.92,
       lastUpdated: new Date()
     });
     
@@ -237,7 +237,7 @@ export class MemStorage implements IStorage {
     return this.currencies.get(code);
   }
   
-  async updateCurrency(code: string, rate: string | number): Promise<Currency> {
+  async updateCurrency(code: string, rate: number): Promise<Currency> {
     const currency = this.currencies.get(code);
     if (!currency) {
       throw new Error(`Currency ${code} not found`);
@@ -245,7 +245,7 @@ export class MemStorage implements IStorage {
     
     const updated: Currency = {
       ...currency,
-      rate: rate.toString(),
+      rate,
       lastUpdated: new Date()
     };
     
@@ -300,13 +300,13 @@ export class MemStorage implements IStorage {
     if (filters) {
       if (filters.startDate) {
         transactions = transactions.filter(t => 
-          new Date(t.date) >= filters.startDate!
+          t.date >= filters.startDate!
         );
       }
       
       if (filters.endDate) {
         transactions = transactions.filter(t => 
-          new Date(t.date) <= filters.endDate!
+          t.date <= filters.endDate!
         );
       }
       

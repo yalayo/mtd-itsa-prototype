@@ -5,32 +5,19 @@
     "incremental": true,
     "tsBuildInfoFile": "./node_modules/typescript/tsbuildinfo",
     "noEmit": true,
-    "module": "NodeNext",
-    "target": "ES2022",
+    "module": "ESNext",
     "strict": true,
     "lib": ["esnext", "dom", "dom.iterable"],
     "jsx": "preserve",
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "allowImportingTsExtensions": true,
-    "moduleResolution": "NodeNext",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
+    "moduleResolution": "bundler",
     "baseUrl": ".",
     "types": ["node", "vite/client"],
     "paths": {
       "@/*": ["./client/src/*"],
-      "@shared/*": ["./shared/*"],
-      "../vite.config": ["../vite.config.ts"],
-      "@babel/parser": ["./node_modules/@babel/parser"],
-      "@babel/types": ["./node_modules/@babel/types"],
-      "pg-types": ["./node_modules/pg-types"],
-      "pg-protocol": ["./node_modules/pg-protocol"],
-      "csstype": ["./node_modules/csstype"],
-      "undici-types": ["./node_modules/undici-types"],
-      "@cloudflare/workers-types": ["./node_modules/@cloudflare/workers-types"],
-      "nanoid": ["./node_modules/nanoid"]
+      "@shared/*": ["./shared/*"]
     }
   }
 }

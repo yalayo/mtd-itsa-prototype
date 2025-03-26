@@ -4,11 +4,11 @@ declare global {
 }
 
 // Import needed modules
-import { createCloudflareStorage } from './cloudflare-storage.js';
-import { registerRoutes } from './routes.js';
-import express, { Request as ExpressRequest, Response as ExpressResponse, NextFunction } from 'express';
-import { log } from './vite.js';
-import { IStorage } from './storage.js';
+import { CloudflareStorage } from './cloudflare-storage';
+import { registerRoutes } from './routes';
+import express from 'express';
+import { log } from './vite';
+import { IStorage } from './storage';
 
 // Cloudflare Worker interface definitions
 interface D1Database {
@@ -29,8 +29,10 @@ interface Env {
   DB: D1Database;
 }
 
-// This function is now imported from cloudflare-storage.js
-// We don't need to define it again here
+// Helper function to create storage instance
+function createCloudflareStorage(db: D1Database): IStorage {
+  return new CloudflareStorage(db);
+}
 
 // Convert Express app to Cloudflare Worker compatible Response
 async function handleRequest(app: express.Express, request: Request): Promise<Response> {
@@ -39,17 +41,6 @@ async function handleRequest(app: express.Express, request: Request): Promise<Re
     let statusCode = 200;
     let statusMessage = 'OK';
     let headers = new Headers();
-
-    // Create Express compatible request object
-    const req: any = {
-      ...request,
-      url: new URL(request.url).pathname,
-      method: request.method,
-      headers: Object.fromEntries(request.headers.entries()),
-      query: Object.fromEntries(new URL(request.url).searchParams.entries()),
-      path: new URL(request.url).pathname,
-      body: null,
-    };
 
     // Mock response object
     const res: any = {
@@ -111,22 +102,12 @@ async function handleRequest(app: express.Express, request: Request): Promise<Re
       }
     };
     
-    // Parse request body if it exists
-    request.json()
-      .then(body => {
-        req.body = body;
-      })
-      .catch(() => {
-        // Body may not be JSON, that's ok
-      })
-      .finally(() => {
-        // Forward the request to Express
-        app(req, res, (err: any) => {
-          if (err) {
-            res.status(500).json({ error: err.message });
-          }
-        });
-      });
+    // Forward the request to Express
+    app(request, res, (err: Error) => {
+      if (err) {
+        res.status(500).json({ error: err.message });
+      }
+    });
   });
 }
 
@@ -137,8 +118,7 @@ export default {
     const app = express();
     
     // Configure global storage based on Cloudflare D1
-    // Use any casting to bypass type checking as we're adapting the Cloudflare D1 interface
-    globalThis.storage = createCloudflareStorage(env.DB as any);
+    globalThis.storage = createCloudflareStorage(env.DB);
     
     // Parse JSON requests
     app.use(express.json());
