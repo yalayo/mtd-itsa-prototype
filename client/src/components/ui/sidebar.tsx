@@ -114,7 +114,7 @@ export function Sidebar() {
                     </div>
                   </div>
                   <div className="ml-3">
-                    <p className="text-sm font-medium text-primary-foreground">{user.fullName}</p>
+                    <p className="text-sm font-medium text-white font-semibold bg-gradient-to-r from-yellow-200 to-yellow-500 bg-clip-text text-transparent">{user.fullName}</p>
                     <p className="text-xs text-primary-foreground/70">
                       {user.businessType === 'sole_trader' ? 'Sole Trader' : 'Landlord'}
                     </p>
@@ -152,7 +152,7 @@ export function Sidebar() {
                   </div>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm font-medium text-primary-foreground">{user.fullName}</p>
+                  <p className="text-sm font-medium text-white font-semibold bg-gradient-to-r from-yellow-200 to-yellow-500 bg-clip-text text-transparent">{user.fullName}</p>
                   <p className="text-xs text-primary-foreground/70">
                     {user.businessType === 'sole_trader' ? 'Sole Trader' : 'Landlord'}
                   </p>

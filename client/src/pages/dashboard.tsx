@@ -94,7 +94,7 @@ export default function Dashboard() {
                   aria-label="Notifications"
                 >
                   <Bell className="h-6 w-6" />
-                  <span className="absolute top-0 right-0 h-4 w-4 rounded-full bg-amber-500 text-xs text-white flex items-center justify-center">3</span>
+                  <span className="absolute top-0 right-0 h-5 w-5 rounded-full bg-red-500 text-xs text-white flex items-center justify-center font-semibold">1</span>
                 </Button>
               </div>
               <div className="border-l border-gray-200 h-6 mx-4 hidden md:block"></div>
