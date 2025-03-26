@@ -30,6 +30,10 @@ jobs:
         run: |
           # Install dependencies needed for compilation
           npm install -D @babel/parser @babel/types undici-types csstype pg-types pg-protocol
+
+          # Compile TypeScript to JavaScript with the build config
+          echo "Compiling server code to JavaScript..."
+          npx tsc -p tsconfig.build.json
           
           # First compile the TypeScript worker to JavaScript
           npx tsc --target ES2022 --module ESNext --outDir ./dist server/worker.ts
