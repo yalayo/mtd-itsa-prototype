@@ -39,25 +39,27 @@ export function Sidebar() {
   
   const renderLinks = () => (
     <nav className="mt-5 px-2 flex-1 space-y-1">
-      {links.map((link) => (
-        <div key={link.href} className="w-full">
-          <Link href={link.href}>
-            {(isActive) => (
-              <button
-                className={`${
-                  isActive
-                    ? "bg-primary/80 text-primary-foreground"
-                    : "text-white hover:bg-primary/50"
-                } group flex items-center px-3 py-3 text-sm font-medium rounded-md w-full text-left`}
-                onClick={closeMobileMenu}
-              >
-                {link.icon}
-                {link.label}
-              </button>
-            )}
-          </Link>
-        </div>
-      ))}
+      {links.map((link) => {
+        const isActive = location === link.href;
+        return (
+          <div key={link.href} className="w-full">
+            <button
+              className={`${
+                isActive
+                  ? "bg-primary/80 text-primary-foreground"
+                  : "text-white hover:bg-primary/50"
+              } group flex items-center px-3 py-3 text-sm font-medium rounded-md w-full text-left`}
+              onClick={() => {
+                window.location.href = link.href;
+                closeMobileMenu();
+              }}
+            >
+              {link.icon}
+              {link.label}
+            </button>
+          </div>
+        );
+      })}
     </nav>
   );
   
