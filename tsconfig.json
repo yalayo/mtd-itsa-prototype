@@ -14,7 +14,7 @@
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "allowImportingTsExtensions": true,
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "baseUrl": ".",
