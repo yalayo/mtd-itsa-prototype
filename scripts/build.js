@@ -14,15 +14,19 @@ const __dirname = path.dirname(__filename);
 console.log('🔨 Starting build process...');
 
 try {
-  // Step 1: Apply patches for module resolution issues
+  // Step 1: Generate the vite.config.js module
+  console.log('📦 Generating vite.config.js module...');
+  execSync('node --input-type=module ' + path.join(__dirname, '..', 'server', 'import-vite-config.ts'), { stdio: 'inherit' });
+  
+  // Step 2: Apply patches for module resolution issues
   console.log('📦 Applying build patches...');
   execSync('node ' + path.join(__dirname, 'build-patch.js'), { stdio: 'inherit' });
   
-  // Step 2: Run TypeScript compilation with patched files
+  // Step 3: Run TypeScript compilation with patched files
   console.log('🔧 Compiling TypeScript...');
   execSync('tsc -p tsconfig.build.json', { stdio: 'inherit' });
   
-  // Step 3: Restore original files after successful compilation
+  // Step 4: Restore original files after successful compilation
   console.log('🧹 Cleaning up...');
   execSync('node ' + path.join(__dirname, 'restore-patch.js'), { stdio: 'inherit' });
   
