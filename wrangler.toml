@@ -1,0 +1,9 @@
+name = "cloudaccount-api"
+main = "server/index.ts"
+compatibility_date = "2023-01-01"
+
+# Database binding for Cloudflare D1
+[[d1_databases]]
+binding = "DB"
+database_name = "cloudaccount"
+database_id = ""  # Will be populated after running `wrangler d1 create cloudaccount`
