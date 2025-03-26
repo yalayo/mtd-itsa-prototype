@@ -4,7 +4,7 @@ import {
   categories, Category, InsertCategory, 
   transactions, Transaction, InsertTransaction,
   taxReports, TaxReport, InsertTaxReport
-} from "@shared/schema";
+} from "../shared/schema.js";
 
 export interface IStorage {
   // User management
