@@ -5,8 +5,11 @@ import { Toaster } from "@/components/ui/toaster";
 import { Sidebar } from "@/components/ui/sidebar";
 import Dashboard from "@/pages/dashboard";
 import Transactions from "@/pages/transactions";
+import Invoices from "@/pages/invoices";
+import Expenses from "@/pages/expenses";
 import TaxReports from "@/pages/tax-reports";
 import ImportData from "@/pages/import-data";
+import BusinessSetup from "@/pages/business-setup";
 import NotFound from "@/pages/not-found";
 import { useUser, UserProvider } from "./context/user-context";
 
@@ -18,8 +21,11 @@ function Router() {
         <Switch>
           <Route path="/" component={Dashboard} />
           <Route path="/transactions" component={Transactions} />
+          <Route path="/invoices" component={Invoices} />
+          <Route path="/expenses" component={Expenses} />
           <Route path="/tax-reports" component={TaxReports} />
           <Route path="/import-data" component={ImportData} />
+          <Route path="/business-setup" component={BusinessSetup} />
           <Route component={NotFound} />
         </Switch>
       </div>
