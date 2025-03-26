@@ -28,9 +28,17 @@ jobs:
         
       - name: Build and Bundle Application
         run: |
-          npm run build
-          # Copy bundled files to terraform directory for deployment
-          cp -r dist/* terraform/
+          # First compile the TypeScript worker to JavaScript
+          npx tsc --target ES2022 --module ESNext --outDir ./dist server/worker.ts
+
+          # Copy the compiled file to the correct location
+          cp ./dist/server/worker.js .terraform/worker.js
+
+          # Verify the worker has proper ESM export syntax
+          if ! grep -q "export default" ./terraform/worker.js; then
+            echo "Error: worker.js does not contain ESM export syntax"
+            exit 1
+          fi
           ls -la terraform/
           
       - name: Setup Terraform
