@@ -1,8 +1,8 @@
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
-import { IStorage, storage as memStorage } from "./storage";
-import { CloudflareStorage } from "./cloudflare-storage";
+import { registerRoutes } from "./routes.js";
+import { setupVite, serveStatic, log } from "./vite.js";
+import { IStorage, storage as memStorage } from "./storage.js";
+import { createCloudflareStorage } from "./cloudflare-storage.js";
 
 // Extend globalThis for Cloudflare environment
 declare global {
@@ -18,10 +18,8 @@ if (isCloudflareEnv) {
   storage = createCloudflareStorage(globalThis.DB);
 }
 
-// Helper function to create Cloudflare storage
-function createCloudflareStorage(db: any): IStorage {
-  return new CloudflareStorage(db);
-}
+// Helper function already imported from cloudflare-storage.js
+// This is a duplicate and can be removed
 
 // Export storage for routes to use
 export { storage };

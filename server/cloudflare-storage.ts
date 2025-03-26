@@ -1,7 +1,7 @@
 import { D1Database } from '@cloudflare/workers-types';
 import { drizzle } from 'drizzle-orm/d1';
 import { eq, and, gte, lte } from 'drizzle-orm';
-import { IStorage } from './storage';
+import { IStorage } from './storage.js';
 import {
   User, InsertUser,
   Currency, InsertCurrency,
@@ -9,7 +9,7 @@ import {
   Transaction, InsertTransaction,
   TaxReport, InsertTaxReport,
   users, currencies, categories, transactions, taxReports
-} from '../shared/schema';
+} from '../shared/schema.js';
 
 // Factory function to create a CloudflareStorage instance
 export function createCloudflareStorage(d1: D1Database): IStorage {
