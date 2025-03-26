@@ -64,7 +64,7 @@ export class MemStorage implements IStorage {
       code: "GBP",
       name: "British Pound",
       symbol: "£",
-      rate: 1.0,
+      rate: "1.0",
       lastUpdated: new Date()
     });
     
