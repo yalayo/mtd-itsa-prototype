@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +17,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 export default function Landing() {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [currentStep, setCurrentStep] = useState(0);
   const [email, setEmail] = useState("");
   const [answers, setAnswers] = useState<Record<string, string | Record<string, boolean>>>({});
@@ -165,11 +167,12 @@ export default function Landing() {
 
       toast({
         title: "Thank you for your interest!",
-        description: "We'll be in touch soon with access to our prototype.",
+        description: "Redirecting you to our prototype now.",
       });
       
-      // Redirect to the dashboard to show the prototype
-      window.location.href = "/dashboard";
+      // Use wouter's navigation instead of window.location
+      // This prevents a page reload and uses the SPA routing
+      setLocation("/");
     } catch (error) {
       console.error('Error submitting survey:', error);
       toast({
