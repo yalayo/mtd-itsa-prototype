@@ -121,7 +121,7 @@ async function handleRequest(app: express.Express, request: Request): Promise<Re
       })
       .finally(() => {
         // Forward the request to Express
-        app(req, res, (err: Error) => {
+        app(req, res, (err: any) => {
           if (err) {
             res.status(500).json({ error: err.message });
           }
