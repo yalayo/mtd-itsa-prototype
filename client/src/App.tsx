@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -77,7 +78,20 @@ function AppContent() {
   );
 }
 
+// Redirect to landing page if user is visiting the site for the first time
 function App() {
+  const [location, setLocation] = useLocation();
+  
+  // If the user is at the root path and hasn't seen the landing page,
+  // redirect them to the landing page
+  useEffect(() => {
+    const hasVisitedBefore = localStorage.getItem('hasVisitedBefore');
+    if (location === '/' && !hasVisitedBefore) {
+      localStorage.setItem('hasVisitedBefore', 'true');
+      setLocation('/landing');
+    }
+  }, [location, setLocation]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <UserProvider>
