@@ -27,9 +27,9 @@ jobs:
         run: npm ci
         
       - name: Build and Bundle Application
-        run: 
+        run: |
           # Install dependencies needed for compilation
-          npm install -D @babel/parser @babel/types undici-types csstype pg-types pg-protocol|
+          npm install -D @babel/parser @babel/types undici-types csstype pg-types pg-protocol
           
           # First compile the TypeScript worker to JavaScript
           npx tsc --target ES2022 --module ESNext --outDir ./dist server/worker.ts
