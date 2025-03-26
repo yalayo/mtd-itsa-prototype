@@ -37,20 +37,5 @@ try {
   process.exit(1);
 }
 
-// Handle cleanup on exit
-process.on('exit', () => {
-  try {
-    // Restore original file from backup
-    if (fs.existsSync(`${viteServerPath}.bak`)) {
-      fs.copyFileSync(`${viteServerPath}.bak`, viteServerPath);
-      fs.unlinkSync(`${viteServerPath}.bak`);
-      console.log('✅ Restored original server/vite.ts file');
-    }
-  } catch (err) {
-    console.error('❌ Failed to restore server/vite.ts:', err);
-  }
-});
-
-// Also handle unexpected termination
-process.on('SIGINT', () => process.exit());
-process.on('SIGTERM', () => process.exit());
+// Note: We've removed the automatic restoration on exit
+// The restore-patch.js script will handle the restoration instead
