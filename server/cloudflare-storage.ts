@@ -52,7 +52,7 @@ export class CloudflareStorage implements IStorage {
   async updateCurrency(code: string, rate: number): Promise<Currency> {
     const updated = await this.db
       .update(currencies)
-      .set({ rate })
+      .set({ rate: rate.toString() }) // Convert rate to string as expected by the schema
       .where(eq(currencies.code, code))
       .returning()
       .get();
@@ -86,24 +86,32 @@ export class CloudflareStorage implements IStorage {
     type?: string,
     currency?: string
   }): Promise<Transaction[]> {
-    let query = this.db.select().from(transactions).where(eq(transactions.userId, userId));
-
+    // For Cloudflare D1, we need to construct the conditions ahead of time
+    const conditions = [eq(transactions.userId, userId)];
+    
     if (filters) {
       if (filters.startDate) {
-        query = query.where(gte(transactions.date, filters.startDate.toISOString()));
+        conditions.push(gte(transactions.date, filters.startDate.toISOString()));
       }
       if (filters.endDate) {
-        query = query.where(lte(transactions.date, filters.endDate.toISOString()));
+        conditions.push(lte(transactions.date, filters.endDate.toISOString()));
       }
       if (filters.type) {
-        query = query.where(eq(transactions.type, filters.type));
+        conditions.push(eq(transactions.type, filters.type));
       }
       if (filters.currency) {
-        query = query.where(eq(transactions.currency, filters.currency));
+        conditions.push(eq(transactions.currency, filters.currency));
       }
     }
-
-    return query.all();
+    
+    // Use and() to combine multiple conditions
+    const result = await this.db
+      .select()
+      .from(transactions)
+      .where(and(...conditions))
+      .all();
+      
+    return result;
   }
 
   async getTransaction(id: number): Promise<Transaction | undefined> {
