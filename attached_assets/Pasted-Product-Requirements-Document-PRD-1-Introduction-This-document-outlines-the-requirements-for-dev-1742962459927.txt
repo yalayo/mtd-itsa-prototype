@@ -1,0 +1,141 @@
+Product Requirements Document (PRD)
+1. Introduction
+
+This document outlines the requirements for developing a cloud-based accounting system tailored for UK-based sole traders and landlords. The system will support multi-currency transactions, facilitate data extraction from Excel files using Google Gemini AI, and ensure compliance with the UK's Making Tax Digital for Income Tax Self Assessment (MTD ITSA) regulations.
+2. Objectives
+
+    Multi-Currency Support: Enable users to manage and record transactions in multiple currencies.​
+    GOV.UK+9allpaullimited+9The Cloudflare Blog+9
+
+    Excel Data Import: Allow users to upload Excel files containing accounting data, which will be processed using Google Gemini AI to extract and store transactions.​
+
+    MTD ITSA Compliance: Generate and submit quarterly updates and annual assessments in line with UK MTD ITSA requirements.​
+    Medium+12DMO Accountants+12landlordstudio.com+12
+
+    Automated Submissions: Facilitate automatic submission of tax reports upon user confirmation.​
+
+    Cloud Deployment: Deploy the system on Cloudflare's infrastructure.​
+    Cloudflare Docs
+
+    Database Management: Utilize SQLite for development and Cloudflare D1 for production environments.​
+
+    User Interface: Develop a responsive frontend using Tailwind CSS.​
+
+3. Functional Requirements
+3.1 Multi-Currency Transactions
+
+    Users can record, view, and manage transactions in various currencies.​
+
+    The system will handle currency conversions based on real-time exchange rates.​
+
+    Financial reports will display amounts in the user's base currency, with conversion details.​
+
+3.2 Excel File Upload and Processing
+
+    Users can upload Excel files containing their accounting data.​
+
+    The system will integrate with Google Gemini AI to extract transaction details from the uploaded files. ​
+    ListenData
+
+    Extracted data will be validated and stored in the system's database.​
+
+3.3 MTD ITSA Compliance
+
+    Generate quarterly updates summarizing income and expenses, adhering to MTD ITSA standards. ​
+    att.org.uk
+
+    Produce an annual end-of-period statement reflecting the user's financial position.​
+    DMO Accountants+1tax.org.uk+1
+
+    Ensure reports are formatted and structured as per HMRC guidelines.​
+
+3.4 Automated Report Submission
+
+    Notify users when reports are ready for submission.​
+
+    Upon user confirmation, automatically submit the reports to HMRC.​
+    developer.service.hmrc.gov.uk+4GOV.UK+4att.org.uk+4
+
+    Maintain a log of submissions and their statuses.​
+
+4. Non-Functional Requirements
+4.1 Performance
+
+    The system should handle concurrent users efficiently without performance degradation.​
+
+4.2 Scalability
+
+    Design the system to scale seamlessly with an increasing number of users and data volume.​
+
+4.3 Security
+
+    Implement robust authentication and authorization mechanisms.​
+
+    Ensure data encryption both in transit and at rest.​
+
+    Regularly update and patch system components to address vulnerabilities.​
+
+4.4 Usability
+
+    Design an intuitive and user-friendly interface.​
+    GOV.UK
+
+    Provide tooltips and help sections to assist users in navigating the system.​
+
+5. Technical Requirements
+5.1 Cloud Deployment
+
+    Deploy the application using Cloudflare's infrastructure to leverage its global network and security features. ​
+
+5.2 Database
+
+    Development Environment: Use SQLite for local development and testing.​
+    Cloudflare Docs+1GOV.UK+1
+
+    Production Environment: Utilize Cloudflare D1 as the primary database solution. ​
+    Connect, protect, and build everywhere+1Cloudflare Docs+1
+
+5.3 Frontend
+
+    Develop the user interface using Tailwind CSS to ensure a responsive and modern design.​
+
+5.4 Integration with Google Gemini AI
+
+    Implement APIs to interact with Google Gemini AI for processing and extracting data from Excel files. ​
+    ListenData
+
+5.5 HMRC API Integration
+
+    Integrate with HMRC's APIs to facilitate the submission of tax reports. ​
+    developer.service.hmrc.gov.uk
+
+6. Compliance and Regulatory Requirements
+
+    Ensure the system complies with UK MTD ITSA regulations, including:​
+
+        Maintaining digital records of income and expenses.​
+        allpaullimited+8DMO Accountants+8att.org.uk+8
+
+        Submitting quarterly updates and an annual final declaration.​
+        TaxAid+2DMO Accountants+2att.org.uk+2
+
+        Adhering to submission deadlines and data accuracy standards. ​
+
+7. Assumptions and Constraints
+
+    Users have a basic understanding of accounting principles.​
+
+    Users possess the necessary permissions to submit tax information to HMRC.​
+    GOV.UK+1att.org.uk+1
+
+    The system will operate primarily in the UK market and adhere to its financial regulations.​
+
+    Internet connectivity is required for system access and operations.​
+
+8. Risks
+
+    Data Accuracy: Inaccurate data extraction from Excel files may lead to erroneous tax submissions.​
+
+    Regulatory Changes: Changes in MTD ITSA regulations may necessitate system updates.​
+
+    System Downtime: Potential downtime during deployments or maintenance could affect user operations.
