@@ -4,13 +4,23 @@ import { setupVite, serveStatic, log } from "./vite";
 import { IStorage, storage as memStorage } from "./storage";
 import { CloudflareStorage } from "./cloudflare-storage";
 
+// Extend globalThis for Cloudflare environment
+declare global {
+  var DB: any;
+}
+
 // Determine which storage implementation to use
 // For Cloudflare Workers environment (D1 database)
 const isCloudflareEnv = typeof globalThis.DB !== 'undefined';
-let storage = memStorage;
+let storage: IStorage = memStorage;
 
 if (isCloudflareEnv) {
-  storage = new CloudflareStorage(globalThis.DB as any);
+  storage = createCloudflareStorage(globalThis.DB);
+}
+
+// Helper function to create Cloudflare storage
+function createCloudflareStorage(db: any): IStorage {
+  return new CloudflareStorage(db);
 }
 
 // Export storage for routes to use
