@@ -248,6 +248,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Landing page email and survey submission
+  app.post("/api/survey/submit", async (req, res) => {
+    try {
+      const { email, answers } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+      
+      // In a real app, you would:
+      // 1. Validate the email format
+      // 2. Store the email and survey answers in a database
+      // 3. Send a confirmation email to the user
+      // 4. Perhaps add the email to a marketing list
+
+      // For now, just return success
+      res.status(201).json({ 
+        message: "Survey submitted successfully", 
+        status: "success"
+      });
+    } catch (error) {
+      handleApiError(res, error);
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -10,10 +10,24 @@ import Expenses from "@/pages/expenses";
 import TaxReports from "@/pages/tax-reports";
 import ImportData from "@/pages/import-data";
 import BusinessSetup from "@/pages/business-setup";
+import Landing from "@/pages/landing";
 import NotFound from "@/pages/not-found";
 import { useUser, UserProvider } from "./context/user-context";
 
 function Router() {
+  const [location] = useLocation();
+  
+  // Don't show sidebar for landing page
+  if (location === "/landing") {
+    return (
+      <div className="min-h-screen">
+        <Switch>
+          <Route path="/landing" component={Landing} />
+        </Switch>
+      </div>
+    );
+  }
+  
   return (
     <div className="flex h-screen bg-gray-50">
       <Sidebar />
@@ -35,6 +49,17 @@ function Router() {
 
 function AppContent() {
   const { isInitialized } = useUser();
+  const [location] = useLocation();
+  
+  // Skip user check for landing page
+  if (location === "/landing") {
+    return (
+      <div>
+        <Router />
+        <Toaster />
+      </div>
+    );
+  }
 
   if (!isInitialized) {
     return (
