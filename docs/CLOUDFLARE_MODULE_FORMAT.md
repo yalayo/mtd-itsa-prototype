@@ -1,106 +1,87 @@
-# Cloudflare Workers Module Format Guide
+# Cloudflare Module Format Workers
 
-## Overview
+This document explains how we handle Cloudflare Workers deployment with D1 database integration in this project.
 
-Cloudflare Workers supports two formats for writing workers:
-1. **Service Worker format** (legacy)
-2. **ES Module format** (current recommended approach)
+## Background
 
-D1 Database bindings **require** the ES Module format. This document explains how to properly structure your worker code for D1 compatibility.
+Cloudflare Workers with D1 database bindings require the worker to be in "module format" (ES modules with explicit exports). This is different from the traditional "service worker format" that was previously the default.
 
-## Requirements for D1 Database Bindings
+## Implementation
 
-When using D1 database bindings with Cloudflare Workers, your worker script must:
+Our project uses:
 
-1. Use ES Module syntax with `export default` 
-2. Explicitly define the worker as a JavaScript module
+1. **TypeScript source files** in `server/` directory
+2. **Compilation process** to convert TypeScript to JavaScript 
+3. **ESM format bundling** to ensure Cloudflare compatibility
+4. **Fallback mechanism** in case compilation fails
 
-## Correct Module Format Example
+## Deployment Methods
 
-```javascript
-// This is the proper ES Module format for Cloudflare Workers with D1 bindings
-export default {
-  async fetch(request, env, ctx) {
-    // Access D1 database through env.DB
-    const result = await env.DB.prepare('SELECT 1 as test').first();
-    return new Response(JSON.stringify(result));
-  }
-};
+### 1. GitHub Actions CI/CD
+
+The project includes a GitHub Actions workflow in `.github/workflows/deploy.yml` that:
+
+- Compiles TypeScript to JavaScript
+- Bundles the worker code with esbuild in ESM format
+- Creates a fallback worker if compilation fails
+- Deploys the worker using either Terraform or Wrangler
+
+### 2. Manual Deployment
+
+You can manually compile and deploy the worker using:
+
+```bash
+# Compile the worker
+bash scripts/compile-worker.sh
+
+# Deploy with Wrangler
+npx wrangler deploy --config wrangler.toml
 ```
 
-## Deployment with Terraform
+## Troubleshooting
 
-When using Terraform to deploy Workers with D1 bindings:
+### Error Code 10021
 
-1. Ensure your worker script uses proper ES Module syntax
-2. Use the `file` function to include the worker script content:
+If you see error code 10021 during deployment, it means Cloudflare is expecting a module-format worker but detected a service-worker format. Solutions:
 
-```hcl
-resource "cloudflare_workers_script" "worker" {
-  account_id = var.cloudflare_account_id
-  script_name = "my-worker"
-  compatibility_date = "2024-01-01"
-  content = file("${path.module}/worker.js")  # Path to your module-format worker
+1. Ensure the compiler produces ESM format exports
+2. In wrangler.toml, include:
+   ```toml
+   format = "modules"
+   ```
+3. Check the resulting JavaScript file for a proper `export default`
 
-  bindings = [{
-    name = "DB"
-    type = "d1"
-    id = cloudflare_d1_database.db.id
-  }]
-}
-```
+### TypeScript Compilation Issues
 
-## Deployment with Wrangler
-
-When using Wrangler CLI, specify the module format in `wrangler.toml`:
-
-```toml
-name = "my-worker"
-main = "worker.js"
-compatibility_date = "2024-01-01"
-
-# Explicitly define module format
-type = "javascript"
-format = "modules"
-
-# D1 database binding
-[[d1_databases]]
-binding = "DB"
-database_name = "my_database"
-database_id = "xxx"
-```
-
-## TypeScript Compilation for Module Format
-
-When working with TypeScript, ensure compilation targets ES modules:
+Our TypeScript configuration in `tsconfig.build.json` includes:
 
 ```json
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "node",
-    // Other options...
+    "noEmit": false,
+    "outDir": "./dist",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    ...
   }
 }
 ```
 
-## Common Errors
+The specific combination of `"module": "NodeNext"` and `"moduleResolution": "NodeNext"` is required to ensure ESM compatibility.
 
-### Error Code 10021
+## Testing
+
+You can verify the module format with:
+
+```bash
+# Compile and check
+bash scripts/test-compile.sh
+
+# Verify exports
+grep -n "export" worker-module.js
 ```
-D1 bindings require module-format workers. 
-https://developers.cloudflare.com/workers/reference/migrate-to-module-workers/
-```
 
-This error occurs when:
-- Your worker uses Service Worker format instead of ES Module format
-- The script does not have a proper `export default` statement
-- The deployment configuration doesn't specify module format
+## References
 
-## Debugging Tips
-
-1. Verify your worker has a proper `export default` statement
-2. If using TypeScript, check the compiled output for ES Module syntax
-3. Test with a minimal module-format worker to validate configuration
-4. When deploying with Wrangler directly, explicitly set `format = "modules"`
+- [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers/learning/migrating-to-module-workers/)
+- [Cloudflare D1 Bindings Documentation](https://developers.cloudflare.com/d1/platform/bindings/)
