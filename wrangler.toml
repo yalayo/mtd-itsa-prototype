@@ -2,6 +2,13 @@ name = "cloudaccount-app"
 main = "terraform/worker.js"
 compatibility_date = "2023-09-01"
 
+# Required for D1 database bindings
+workers_dev = true
+compatibility_flags = ["nodejs_compat"]
+# Explicitly set to module format for D1 compatibility
+type = "javascript"
+format = "modules"
+
 [vars]
 NODE_ENV = "production"
 

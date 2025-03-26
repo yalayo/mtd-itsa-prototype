@@ -28,8 +28,12 @@ jobs:
       - name: Build frontend and worker
         run: |
           npm run build
-          # Create worker script for Cloudflare Workers
+          # Create worker script for Cloudflare Workers - ensure module format for D1 compatibility
           npx esbuild server/worker.ts --platform=neutral --packages=external --bundle --format=esm --outfile=terraform/worker.js
+          # Update file to explicitly use export syntax required for module workers
+          echo "export { default } from './worker-bundle.js';" > terraform/worker-module.js
+          mv terraform/worker.js terraform/worker-bundle.js
+          mv terraform/worker-module.js terraform/worker.js
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
