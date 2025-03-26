@@ -28,7 +28,7 @@ jobs:
         
       - name: Build and Bundle Application
         run: |
-          npm run build
+          npx tsc --target ES2022 --module ESNext --outDir ./dist server/worker.ts
           # Copy bundled files to terraform directory for deployment
           cp -r dist/* terraform/
           ls -la terraform/
