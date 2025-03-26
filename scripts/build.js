@@ -14,9 +14,8 @@ const __dirname = path.dirname(__filename);
 console.log('🔨 Starting build process...');
 
 try {
-  // Step 1: Generate the vite.config.js module
-  console.log('📦 Generating vite.config.js module...');
-  execSync('node --input-type=module ' + path.join(__dirname, '..', 'server', 'import-vite-config.ts'), { stdio: 'inherit' });
+  // Step 1: We no longer need to generate the vite.config.js module
+  // The file is now directly created in the root directory
   
   // Step 2: Apply patches for module resolution issues
   console.log('📦 Applying build patches...');
